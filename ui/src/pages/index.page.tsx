@@ -115,18 +115,6 @@ export default function Home() {
           });
           const accountExists = res.error == null;
           if (accountExists) {
-            // const randomNumber = Math.floor(Math.random() * 100);
-            // console.log('🚀 ~ randomNumber:', randomNumber);
-            // await state.zkappWorkerClient?.generateNumber(Field(randomNumber));
-
-            // const randomNumberGenerated = await state.zkappWorkerClient?.fetchNumber();
-
-            // setState({
-            //   ...state,
-            //   randomNumber: randomNumberGenerated
-            // });
-
-            // console.log('🚀 ~ state.randomNumber:', state.randomNumber);
             break;
           }
           await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -135,32 +123,6 @@ export default function Home() {
       }
     })();
   }, [state.hasBeenSetup]);
-
-  useEffect(() => {
-    const fetchAndDisplayNumber = async () => {
-      if (state.zkappWorkerClient && state.accountExists) {
-        try {
-          const randomNumber = Math.floor(Math.random() * 100);
-          console.log('🚀 ~ randomNumber:', randomNumber);
-          const generatedRandomNumber = await state.zkappWorkerClient.generateNumber(randomNumber);
-          console.log('🚀 ~ fetchAndDisplayNumber ~ generatedRandomNumber:', generatedRandomNumber);
-
-          // const fetchedNumber = await state.zkappWorkerClient.fetchNumber();
-          // setState(prevState => ({
-          //   ...prevState,
-          //   randomNumber: fetchedNumber
-          // }));
-          // console.log('Fetched Number:', fetchedNumber.toString());
-        } catch (error) {
-          console.error("Error fetching number:", error);
-        }
-      }
-    };
-
-    if (state.hasBeenSetup && !state.randomNumber) {
-      fetchAndDisplayNumber();
-    }
-  }, [state.hasBeenSetup, state.accountExists, state.zkappWorkerClient, state.randomNumber]);
 
 
   // -------------------------------------------------------
@@ -206,12 +168,40 @@ export default function Home() {
   // -------------------------------------------------------
   // Refresh the current state
 
-  const onMakeGuess = async (isEven: boolean) => {
-    setDisplayRandomNumber(true)
-    state
-    console.log('🚀 ~ onMakeGuess ~ randomNumber:', state.randomNumber);
+  const handleGuess = async (guessIsEven: boolean) => {
+    if (!state.zkappWorkerClient) return;
 
+    const randomNumber = Math.floor(Math.random() * 100) + 1;
+    console.log('🚀 ~ handleGuess ~ randomNumber:', randomNumber);
+
+    try {
+      const generatedRandomNumber = await state.zkappWorkerClient.updateRandomNumber(randomNumber);
+      console.log('🚀 ~ handleGuess ~ generatedRandomNumber:', generatedRandomNumber);
+      if (!generatedRandomNumber) throw new Error("Failed to update random number.");
+
+      const evennessResult = await state.zkappWorkerClient.determineRandomNumberEvenness();
+      console.log('🚀 ~ handleGuess ~ evennessResult:', evennessResult);
+      if (!evennessResult) throw new Error("Failed to determine number evenness.");
+
+      const fetchEvenness =
+        await state.zkappWorkerClient.fetchEvenness();
+      console.log('🚀 ~ fetchAndDisplayNumber ~ fetchEvenness:',
+        fetchEvenness);
+
+      const isEven = JSON.parse(evennessResult);
+      console.log('🚀 ~ Number Evenness:', isEven);
+
+      // Logic to update the state based on the evenness result
+      setState({ ...state, randomNumber: Field(randomNumber) });
+      const result = guessIsEven === isEven ? 'Correct!' : 'Wrong!';
+      setDisplayText(`The number was ${randomNumber}. You are ${result}`);
+
+    } catch (error) {
+      console.error("Error during transaction:", error);
+      setDisplayText('Error processing your guess.');
+    }
   };
+
 
   // -------------------------------------------------------
   // Create UI elements
@@ -276,14 +266,14 @@ export default function Home() {
         </div>
         <button
           className={styles.card}
-          onClick={() => onMakeGuess(true)}
+          onClick={() => handleGuess(true)}
           disabled={!!state.randomNumber}
         >
           Even
         </button>
         <button
           className={styles.card}
-          onClick={() => onMakeGuess(false)}
+          onClick={() => handleGuess(false)}
           disabled={!!state.randomNumber}
         >
           Uneven

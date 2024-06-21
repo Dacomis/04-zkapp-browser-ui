@@ -38,12 +38,17 @@ export default class ZkappWorkerClient {
     });
   }
 
-  async generateNumber(randomNumber: number) {
-    return this._call('generateNumber', {randomNumber});
+  async updateRandomNumber(randomNumber: number) {
+    return this._call('updateRandomNumber', {randomNumber});
   }
 
-  async fetchNumber() {
-    return this._call('fetchNumber', {})
+  async determineRandomNumberEvenness() {
+    const result = await this._call('determineRandomNumberEvenness', {});
+    return result ? JSON.parse(result as string) : null;
+  }
+
+  async fetchEvenness() {
+    return this._call('fetchEvenness', {})
       .then(result => (JSON.parse(result as string)))
   }
 

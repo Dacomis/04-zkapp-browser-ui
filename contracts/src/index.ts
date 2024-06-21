@@ -1,3 +1,3 @@
-import { RandomNumberGenerator } from './RandomNumberGenerator.js';
+import { IsNumberEven } from './IsNumberEven.js';
 
-export { RandomNumberGenerator };
+export { IsNumberEven };

@@ -4,11 +4,11 @@ type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
 
 // ---------------------------------------------------------------------------------------
 
-import type { RandomNumberGenerator } from '../../../contracts/src/RandomNumberGenerator';
+import type { IsNumberEven } from '../../../contracts/src/IsNumberEven';
 
 const state = {
-  RandomNumberGenerator: null as null | typeof RandomNumberGenerator,
-  zkapp: null as null | RandomNumberGenerator,
+  IsNumberEven: null as null | typeof IsNumberEven,
+  zkapp: null as null | IsNumberEven,
   transaction: null as null | Transaction,
 };
 
@@ -23,11 +23,11 @@ const functions = {
     Mina.setActiveInstance(Network);
   },
   loadContract: async (args: {}) => {
-    const { RandomNumberGenerator } = await import('../../../contracts/build/src/RandomNumberGenerator.js');
-    state.RandomNumberGenerator = RandomNumberGenerator;
+    const { IsNumberEven } = await import('../../../contracts/build/src/IsNumberEven.js');
+    state.IsNumberEven = IsNumberEven;
   },
   compileContract: async (args: {}) => {
-    await state.RandomNumberGenerator!.compile();
+    await state.IsNumberEven!.compile();
   },
   fetchAccount: async (args: { publicKey58: string }) => {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
@@ -35,7 +35,7 @@ const functions = {
   },
   initZkappInstance: async (args: { publicKey58: string }) => {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
-    state.zkapp = new state.RandomNumberGenerator!(publicKey);
+    state.zkapp = new state.IsNumberEven!(publicKey);
   },
   proveUpdateTransaction: async (args: {}) => {
     await state.transaction!.prove();
@@ -43,14 +43,22 @@ const functions = {
   getTransactionJSON: async (args: {}) => {
     return state.transaction!.toJSON();
   },
-  generateNumber: async (args: { randomNumber: number }) => {
-    await Mina.transaction(async () => {
-        const fieldNumber = Field(args.randomNumber);  // Convert number to Field here
-        await state.zkapp!.generateNumber(fieldNumber);
+  updateRandomNumber: async (args: { randomNumber: number }) => {
+    const fieldNumber = Field(args.randomNumber);
+    const tx = await Mina.transaction(async () => {
+      await state.zkapp!.updateRandomNumber(fieldNumber);
+      await state.zkapp!.determineRandomNumberEvenness();
     });
+    await tx.prove();
+    const sentTx = await tx.send();
+    console.log('Transaction hash:', sentTx.hash);
+    return JSON.stringify({ hash: sentTx.hash });
   },
-  fetchNumber: async (args: {}) => {
-    return await state.zkapp!.randomNumber.get();
+  determineRandomNumberEvenness: async (args: {}) => {
+    return await state.zkapp!.determineRandomNumberEvenness();
+  },
+  fetchEvenness: async (args: {}) => {
+    return await state.zkapp!.isRandomNumberEven.get();
   }
 };
 
