@@ -56,7 +56,7 @@ describe('Add', () => {
 
     // update transaction
     const txn = await Mina.transaction(senderAccount, async () => {
-      await zkApp.update();
+      await zkApp.updateFromAdd();
     });
     await txn.prove();
     await txn.sign([senderKey]).send();

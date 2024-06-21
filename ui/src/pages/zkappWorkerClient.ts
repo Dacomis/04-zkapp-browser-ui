@@ -38,13 +38,13 @@ export default class ZkappWorkerClient {
     });
   }
 
-  async getNum(): Promise<Field> {
-    const result = await this._call('getNum', {});
-    return Field.fromJSON(JSON.parse(result as string));
+  async generateNumber(randomNumber: number) {
+    return this._call('generateNumber', {randomNumber});
   }
 
-  createUpdateTransaction() {
-    return this._call('createUpdateTransaction', {});
+  async fetchNumber() {
+    return this._call('fetchNumber', {})
+      .then(result => (JSON.parse(result as string)))
   }
 
   proveUpdateTransaction() {

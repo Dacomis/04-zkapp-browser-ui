@@ -14,14 +14,16 @@ export default function Home() {
     hasWallet: null as null | boolean,
     hasBeenSetup: false,
     accountExists: false,
-    currentNum: null as null | Field,
     publicKey: null as null | PublicKey,
     zkappPublicKey: null as null | PublicKey,
     creatingTransaction: false,
+    randomNumber: null as null | Field
   });
 
   const [displayText, setDisplayText] = useState('');
-  const [transactionlink, setTransactionLink] = useState('');
+  const [transactionLink, setTransactionLink] = useState('');
+  const [displayRandomNumber, setDisplayRandomNumber] = useState(false);
+
 
   // -------------------------------------------------------
   // Do Setup
@@ -83,8 +85,6 @@ export default function Home() {
         console.log('Getting zkApp state...');
         setDisplayText('Getting zkApp state...');
         await zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey });
-        const currentNum = await zkappWorkerClient.getNum();
-        console.log(`Current state in zkApp: ${currentNum.toString()}`);
         setDisplayText('');
 
         setState({
@@ -95,7 +95,6 @@ export default function Home() {
           publicKey,
           zkappPublicKey,
           accountExists,
-          currentNum,
         });
       }
     })();
@@ -107,7 +106,8 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       if (state.hasBeenSetup && !state.accountExists) {
-        for (;;) {
+
+        for (; ;) {
           setDisplayText('Checking if fee payer account exists...');
           console.log('Checking if fee payer account exists...');
           const res = await state.zkappWorkerClient!.fetchAccount({
@@ -115,6 +115,18 @@ export default function Home() {
           });
           const accountExists = res.error == null;
           if (accountExists) {
+            // const randomNumber = Math.floor(Math.random() * 100);
+            // console.log('🚀 ~ randomNumber:', randomNumber);
+            // await state.zkappWorkerClient?.generateNumber(Field(randomNumber));
+
+            // const randomNumberGenerated = await state.zkappWorkerClient?.fetchNumber();
+
+            // setState({
+            //   ...state,
+            //   randomNumber: randomNumberGenerated
+            // });
+
+            // console.log('🚀 ~ state.randomNumber:', state.randomNumber);
             break;
           }
           await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -123,6 +135,33 @@ export default function Home() {
       }
     })();
   }, [state.hasBeenSetup]);
+
+  useEffect(() => {
+    const fetchAndDisplayNumber = async () => {
+      if (state.zkappWorkerClient && state.accountExists) {
+        try {
+          const randomNumber = Math.floor(Math.random() * 100);
+          console.log('🚀 ~ randomNumber:', randomNumber);
+          const generatedRandomNumber = await state.zkappWorkerClient.generateNumber(randomNumber);
+          console.log('🚀 ~ fetchAndDisplayNumber ~ generatedRandomNumber:', generatedRandomNumber);
+
+          // const fetchedNumber = await state.zkappWorkerClient.fetchNumber();
+          // setState(prevState => ({
+          //   ...prevState,
+          //   randomNumber: fetchedNumber
+          // }));
+          // console.log('Fetched Number:', fetchedNumber.toString());
+        } catch (error) {
+          console.error("Error fetching number:", error);
+        }
+      }
+    };
+
+    if (state.hasBeenSetup && !state.randomNumber) {
+      fetchAndDisplayNumber();
+    }
+  }, [state.hasBeenSetup, state.accountExists, state.zkappWorkerClient, state.randomNumber]);
+
 
   // -------------------------------------------------------
   // Send a transaction
@@ -136,8 +175,6 @@ export default function Home() {
     await state.zkappWorkerClient!.fetchAccount({
       publicKey: state.publicKey!,
     });
-
-    await state.zkappWorkerClient!.createUpdateTransaction();
 
     setDisplayText('Creating proof...');
     console.log('Creating proof...');
@@ -169,17 +206,11 @@ export default function Home() {
   // -------------------------------------------------------
   // Refresh the current state
 
-  const onRefreshCurrentNum = async () => {
-    console.log('Getting zkApp state...');
-    setDisplayText('Getting zkApp state...');
+  const onMakeGuess = async (isEven: boolean) => {
+    setDisplayRandomNumber(true)
+    state
+    console.log('🚀 ~ onMakeGuess ~ randomNumber:', state.randomNumber);
 
-    await state.zkappWorkerClient!.fetchAccount({
-      publicKey: state.zkappPublicKey!,
-    });
-    const currentNum = await state.zkappWorkerClient!.getNum();
-    setState({ ...state, currentNum });
-    console.log(`Current state in zkApp: ${currentNum.toString()}`);
-    setDisplayText('');
   };
 
   // -------------------------------------------------------
@@ -196,9 +227,9 @@ export default function Home() {
     hasWallet = <div>Could not find a wallet. {auroLinkElem}</div>;
   }
 
-  const stepDisplay = transactionlink ? (
+  const stepDisplay = transactionLink ? (
     <a
-      href={transactionlink}
+      href={transactionLink}
       target="_blank"
       rel="noreferrer"
       style={{ textDecoration: 'underline' }}
@@ -237,19 +268,33 @@ export default function Home() {
   if (state.hasBeenSetup && state.accountExists) {
     mainContent = (
       <div style={{ justifyContent: 'center', alignItems: 'center' }}>
-        <div className={styles.center} style={{ padding: 0 }}>
-          Current state in zkApp: {state.currentNum!.toString()}{' '}
+        <div className={styles.start} style={{ fontWeight: 'bold', fontSize: '1.5rem', paddingBottom: '5rem' }}>
+          Is the number Even or Uneven?
+        </div>
+        <div className={styles.card}>
+          {displayRandomNumber && state.randomNumber?.toString()}
         </div>
         <button
           className={styles.card}
-          onClick={onSendTransaction}
-          disabled={state.creatingTransaction}
+          onClick={() => onMakeGuess(true)}
+          disabled={!!state.randomNumber}
         >
-          Send Transaction
+          Even
         </button>
-        <button className={styles.card} onClick={onRefreshCurrentNum}>
-          Get Latest State
+        <button
+          className={styles.card}
+          onClick={() => onMakeGuess(false)}
+          disabled={!!state.randomNumber}
+        >
+          Uneven
         </button>
+
+        {/* {state.lastGuessCorrect !== null
+          ? (state.lastGuessCorrect
+            ? <div className={styles.card}>You have won</div>
+            : <div className={styles.card}>You have lost</div>)
+          : ""
+        } */}
       </div>
     );
   }

@@ -17,7 +17,7 @@ export class Add extends SmartContract {
     this.num.set(Field(1));
   }
 
-  @method async update() {
+  @method async updateFromAdd() {
     const currentState = this.num.getAndRequireEquals();
     const newState = currentState.add(2);
     this.num.set(newState);

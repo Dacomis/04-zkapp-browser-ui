@@ -1,14 +1,14 @@
-import { Mina, PublicKey, fetchAccount } from 'o1js';
+import { Bool, Field, Mina, PublicKey, fetchAccount } from 'o1js';
 
 type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
 
 // ---------------------------------------------------------------------------------------
 
-import type { Add } from '../../../contracts/src/Add';
+import type { GuessGame } from '../../../contracts/src/GuessGame';
 
 const state = {
-  Add: null as null | typeof Add,
-  zkapp: null as null | Add,
+  GuessGame: null as null | typeof GuessGame,
+  zkapp: null as null | GuessGame,
   transaction: null as null | Transaction,
 };
 
@@ -23,11 +23,11 @@ const functions = {
     Mina.setActiveInstance(Network);
   },
   loadContract: async (args: {}) => {
-    const { Add } = await import('../../../contracts/build/src/Add.js');
-    state.Add = Add;
+    const { GuessGame } = await import('../../../contracts/build/src/GuessGame.js');
+    state.GuessGame = GuessGame;
   },
   compileContract: async (args: {}) => {
-    await state.Add!.compile();
+    await state.GuessGame!.compile();
   },
   fetchAccount: async (args: { publicKey58: string }) => {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
@@ -35,17 +35,7 @@ const functions = {
   },
   initZkappInstance: async (args: { publicKey58: string }) => {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
-    state.zkapp = new state.Add!(publicKey);
-  },
-  getNum: async (args: {}) => {
-    const currentNum = await state.zkapp!.num.get();
-    return JSON.stringify(currentNum.toJSON());
-  },
-  createUpdateTransaction: async (args: {}) => {
-    const transaction = await Mina.transaction(async () => {
-      await state.zkapp!.update();
-    });
-    state.transaction = transaction;
+    state.zkapp = new state.GuessGame!(publicKey);
   },
   proveUpdateTransaction: async (args: {}) => {
     await state.transaction!.prove();
@@ -53,6 +43,15 @@ const functions = {
   getTransactionJSON: async (args: {}) => {
     return state.transaction!.toJSON();
   },
+  generateNumber: async (args: { randomNumber: number }) => {
+    await Mina.transaction(async () => {
+        const fieldNumber = Field(args.randomNumber);  // Convert number to Field here
+        await state.zkapp!.generateNumber(fieldNumber);
+    });
+  },
+  fetchNumber: async (args: {}) => {
+    return await state.zkapp!.randomNumber.get();
+  }
 };
 
 // ---------------------------------------------------------------------------------------
