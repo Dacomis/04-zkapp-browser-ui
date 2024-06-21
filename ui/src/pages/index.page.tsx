@@ -177,18 +177,16 @@ export default function Home() {
     try {
       const generatedRandomNumber = await state.zkappWorkerClient.updateRandomNumber(randomNumber);
       console.log('🚀 ~ handleGuess ~ generatedRandomNumber:', generatedRandomNumber);
-      if (!generatedRandomNumber) throw new Error("Failed to update random number.");
 
       const evennessResult = await state.zkappWorkerClient.determineRandomNumberEvenness();
       console.log('🚀 ~ handleGuess ~ evennessResult:', evennessResult);
-      if (!evennessResult) throw new Error("Failed to determine number evenness.");
 
       const fetchEvenness =
         await state.zkappWorkerClient.fetchEvenness();
       console.log('🚀 ~ fetchAndDisplayNumber ~ fetchEvenness:',
         fetchEvenness);
 
-      const isEven = JSON.parse(evennessResult);
+      const isEven = JSON.parse(evennessResult as string);
       console.log('🚀 ~ Number Evenness:', isEven);
 
       // Logic to update the state based on the evenness result

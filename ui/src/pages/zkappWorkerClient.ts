@@ -43,13 +43,11 @@ export default class ZkappWorkerClient {
   }
 
   async determineRandomNumberEvenness() {
-    const result = await this._call('determineRandomNumberEvenness', {});
-    return result ? JSON.parse(result as string) : null;
+    return this._call('determineRandomNumberEvenness', {});
   }
 
   async fetchEvenness() {
-    return this._call('fetchEvenness', {})
-      .then(result => (JSON.parse(result as string)))
+    return this._call('fetchEvenness', {});
   }
 
   proveUpdateTransaction() {

@@ -10,6 +10,7 @@ const state = {
   IsNumberEven: null as null | typeof IsNumberEven,
   zkapp: null as null | IsNumberEven,
   transaction: null as null | Transaction,
+  randomNumberState: null as null | Field,
 };
 
 // ---------------------------------------------------------------------------------------
@@ -43,16 +44,8 @@ const functions = {
   getTransactionJSON: async (args: {}) => {
     return state.transaction!.toJSON();
   },
-  updateRandomNumber: async (args: { randomNumber: number }) => {
-    const fieldNumber = Field(args.randomNumber);
-    const tx = await Mina.transaction(async () => {
-      await state.zkapp!.updateRandomNumber(fieldNumber);
-      await state.zkapp!.determineRandomNumberEvenness();
-    });
-    await tx.prove();
-    const sentTx = await tx.send();
-    console.log('Transaction hash:', sentTx.hash);
-    return JSON.stringify({ hash: sentTx.hash });
+  updateRandomNumber: async (args: {randomNumber: number}) => {
+    await state.zkapp!.updateRandomNumber(Field(args.randomNumber));
   },
   determineRandomNumberEvenness: async (args: {}) => {
     return await state.zkapp!.determineRandomNumberEvenness();
