@@ -14,7 +14,7 @@
  */
 import fs from 'fs/promises';
 import { Field, Mina, NetworkId, PrivateKey } from 'o1js';
-import { GuessGame } from './GuessGame';
+import { RandomNumberGenerator } from './RandomNumberGenerator';
 
 // check command line arg
 let deployAlias = process.argv[2];
@@ -66,11 +66,11 @@ const fee = Number(config.fee) * 1e9; // in nanomina (1 billion = 1.0 mina)
 Mina.setActiveInstance(Network);
 let feepayerAddress = feepayerKey.toPublicKey();
 let zkAppAddress = zkAppKey.toPublicKey();
-let zkApp = new GuessGame(zkAppAddress);
+let zkApp = new RandomNumberGenerator(zkAppAddress);
 
 // compile the contract to create prover keys
 console.log('compile the contract...');
-await GuessGame.compile();
+await RandomNumberGenerator.compile();
 
 try {
   // call update() and send transaction

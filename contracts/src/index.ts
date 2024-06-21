@@ -1,3 +1,3 @@
-import { Add } from './Add.js';
+import { RandomNumberGenerator } from './RandomNumberGenerator.js';
 
-export { Add };
+export { RandomNumberGenerator };

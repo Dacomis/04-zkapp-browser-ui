@@ -1,14 +1,14 @@
-import { Bool, Field, Mina, PublicKey, fetchAccount } from 'o1js';
+import { Field, Mina, PublicKey, fetchAccount } from 'o1js';
 
 type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
 
 // ---------------------------------------------------------------------------------------
 
-import type { GuessGame } from '../../../contracts/src/GuessGame';
+import type { RandomNumberGenerator } from '../../../contracts/src/RandomNumberGenerator';
 
 const state = {
-  GuessGame: null as null | typeof GuessGame,
-  zkapp: null as null | GuessGame,
+  RandomNumberGenerator: null as null | typeof RandomNumberGenerator,
+  zkapp: null as null | RandomNumberGenerator,
   transaction: null as null | Transaction,
 };
 
@@ -23,11 +23,11 @@ const functions = {
     Mina.setActiveInstance(Network);
   },
   loadContract: async (args: {}) => {
-    const { GuessGame } = await import('../../../contracts/build/src/GuessGame.js');
-    state.GuessGame = GuessGame;
+    const { RandomNumberGenerator } = await import('../../../contracts/build/src/RandomNumberGenerator.js');
+    state.RandomNumberGenerator = RandomNumberGenerator;
   },
   compileContract: async (args: {}) => {
-    await state.GuessGame!.compile();
+    await state.RandomNumberGenerator!.compile();
   },
   fetchAccount: async (args: { publicKey58: string }) => {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
@@ -35,7 +35,7 @@ const functions = {
   },
   initZkappInstance: async (args: { publicKey58: string }) => {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
-    state.zkapp = new state.GuessGame!(publicKey);
+    state.zkapp = new state.RandomNumberGenerator!(publicKey);
   },
   proveUpdateTransaction: async (args: {}) => {
     await state.transaction!.prove();
