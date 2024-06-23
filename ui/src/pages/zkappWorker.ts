@@ -51,7 +51,7 @@ const functions = {
     return await state.zkapp!.determineRandomNumberEvenness();
   },
   fetchEvenness: async (args: {}) => {
-    return await state.zkapp!.isRandomNumberEven.get();
+    return await state.zkapp!.isRandomNumberEven.getAndRequireEquals().toBigInt();
   }
 };
 

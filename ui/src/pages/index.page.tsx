@@ -128,42 +128,42 @@ export default function Home() {
   // -------------------------------------------------------
   // Send a transaction
 
-  const onSendTransaction = async () => {
-    setState({ ...state, creatingTransaction: true });
+  // const onSendTransaction = async () => {
+  //   setState({ ...state, creatingTransaction: true });
 
-    setDisplayText('Creating a transaction...');
-    console.log('Creating a transaction...');
+  //   setDisplayText('Creating a transaction...');
+  //   console.log('Creating a transaction...');
 
-    await state.zkappWorkerClient!.fetchAccount({
-      publicKey: state.publicKey!,
-    });
+  //   await state.zkappWorkerClient!.fetchAccount({
+  //     publicKey: state.publicKey!,
+  //   });
 
-    setDisplayText('Creating proof...');
-    console.log('Creating proof...');
-    await state.zkappWorkerClient!.proveUpdateTransaction();
+  //   setDisplayText('Creating proof...');
+  //   console.log('Creating proof...');
+  //   await state.zkappWorkerClient!.proveUpdateTransaction();
 
-    console.log('Requesting send transaction...');
-    setDisplayText('Requesting send transaction...');
-    const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
+  //   console.log('Requesting send transaction...');
+  //   setDisplayText('Requesting send transaction...');
+  //   const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
 
-    setDisplayText('Getting transaction JSON...');
-    console.log('Getting transaction JSON...');
-    const { hash } = await (window as any).mina.sendTransaction({
-      transaction: transactionJSON,
-      feePayer: {
-        fee: transactionFee,
-        memo: '',
-      },
-    });
+  //   setDisplayText('Getting transaction JSON...');
+  //   console.log('Getting transaction JSON...');
+  //   const { hash } = await (window as any).mina.sendTransaction({
+  //     transaction: transactionJSON,
+  //     feePayer: {
+  //       fee: transactionFee,
+  //       memo: '',
+  //     },
+  //   });
 
-    const transactionLink = `https://minascan.io/devnet/tx/${hash}`;
-    console.log(`View transaction at ${transactionLink}`);
+  //   const transactionLink = `https://minascan.io/devnet/tx/${hash}`;
+  //   console.log(`View transaction at ${transactionLink}`);
 
-    setTransactionLink(transactionLink);
-    setDisplayText(transactionLink);
+  //   setTransactionLink(transactionLink);
+  //   setDisplayText(transactionLink);
 
-    setState({ ...state, creatingTransaction: false });
-  };
+  //   setState({ ...state, creatingTransaction: false });
+  // };
 
   // -------------------------------------------------------
   // Refresh the current state
@@ -186,13 +186,13 @@ export default function Home() {
       console.log('🚀 ~ fetchAndDisplayNumber ~ fetchEvenness:',
         fetchEvenness);
 
-      const isEven = JSON.parse(evennessResult as string);
-      console.log('🚀 ~ Number Evenness:', isEven);
+      // const isEven = JSON.parse(evennessResult as string);
+      // console.log('🚀 ~ Number Evenness:', isEven);
 
       // Logic to update the state based on the evenness result
-      setState({ ...state, randomNumber: Field(randomNumber) });
-      const result = guessIsEven === isEven ? 'Correct!' : 'Wrong!';
-      setDisplayText(`The number was ${randomNumber}. You are ${result}`);
+      setState({ ...state, randomNumber: generatedRandomNumber as Field });
+      // const result = guessIsEven === isEven ? 'Correct!' : 'Wrong!';
+      // setDisplayText(`The number was ${randomNumber}. You are ${result}`);
 
     } catch (error) {
       console.error("Error during transaction:", error);
