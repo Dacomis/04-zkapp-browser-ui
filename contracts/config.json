@@ -18,6 +18,15 @@
       "feepayerAlias": "lightnet1",
       "fee": "0.01",
       "smartContract": "IsNumberEven"
+    },
+    "test4": {
+      "networkId": "testnet",
+      "url": "https://api.minascan.io/node/devnet/v1/graphql",
+      "keyPath": "keys/test4.json",
+      "feepayerKeyPath": "/home/aaa/.cache/zkapp-cli/keys/test4.json",
+      "feepayerAlias": "test4",
+      "fee": "0.1",
+      "smartContract": "IsNumberEven"
     }
   }
 }

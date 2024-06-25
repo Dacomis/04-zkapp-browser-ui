@@ -6,7 +6,11 @@ import './reactCOIServiceWorker';
 import ZkappWorkerClient from './zkappWorkerClient';
 
 let transactionFee = 0.1;
-const ZKAPP_ADDRESS = 'B62qjmBxsnWbY5phueTYxtfVGYHV3P4ex8Xijjrjm7Jbrsn5LQcazEg';
+// on remote node
+const ZKAPP_ADDRESS = 'B62qp9fnHEUwfreFpKCWhTREBdyvkeP15f3hsioQKHpC1SWd222yYaR'; 
+
+// on lightnet
+// const ZKAPP_ADDRESS = 'B62qptxxnPmYMQsen8XeT41gy8aEcVZkMHXwFZQqmhrjarjBpE4DUvM'; 
 
 export default function Home() {
   const [state, setState] = useState({
@@ -141,6 +145,7 @@ export default function Home() {
       publicKey: state.publicKey!,
     });
 
+    await state.zkappWorkerClient!.compileContract();
     await state.zkappWorkerClient!.createUpdateTransaction();
 
     setDisplayText('Creating proof...');
@@ -150,6 +155,7 @@ export default function Home() {
     console.log('Requesting send transaction...');
     setDisplayText('Requesting send transaction...');
     const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
+    console.log('🚀 ~ onSendTransaction ~ transactionJSON:', transactionJSON);
 
     setDisplayText('Getting transaction JSON...');
     console.log('Getting transaction JSON...');
