@@ -6,7 +6,7 @@ import './reactCOIServiceWorker';
 import ZkappWorkerClient from './zkappWorkerClient';
 
 let transactionFee = 0.1;
-const ZKAPP_ADDRESS = 'B62qpXPvmKDf4SaFJynPsT6DyvuxMS9H1pT4TGonDT26m599m7dS9gP';
+const ZKAPP_ADDRESS = 'B62qjmBxsnWbY5phueTYxtfVGYHV3P4ex8Xijjrjm7Jbrsn5LQcazEg';
 
 export default function Home() {
   const [state, setState] = useState({
@@ -72,6 +72,7 @@ export default function Home() {
 
         await zkappWorkerClient.loadContract();
 
+
         console.log('Compiling zkApp...');
         setDisplayText('Compiling zkApp...');
         await zkappWorkerClient.compileContract();
@@ -85,6 +86,8 @@ export default function Home() {
         console.log('Getting zkApp state...');
         setDisplayText('Getting zkApp state...');
         await zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey });
+        console.log('🚀 ~ zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey });:', zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey }).then(result => result));
+        console.log('🚀 ~ zkappPublicKey:', zkappPublicKey);
         setDisplayText('');
 
         setState({
@@ -128,42 +131,44 @@ export default function Home() {
   // -------------------------------------------------------
   // Send a transaction
 
-  // const onSendTransaction = async () => {
-  //   setState({ ...state, creatingTransaction: true });
+  const onSendTransaction = async () => {
+    setState({ ...state, creatingTransaction: true });
 
-  //   setDisplayText('Creating a transaction...');
-  //   console.log('Creating a transaction...');
+    setDisplayText('Creating a transaction...');
+    console.log('Creating a transaction...');
 
-  //   await state.zkappWorkerClient!.fetchAccount({
-  //     publicKey: state.publicKey!,
-  //   });
+    await state.zkappWorkerClient!.fetchAccount({
+      publicKey: state.publicKey!,
+    });
 
-  //   setDisplayText('Creating proof...');
-  //   console.log('Creating proof...');
-  //   await state.zkappWorkerClient!.proveUpdateTransaction();
+    await state.zkappWorkerClient!.createUpdateTransaction();
 
-  //   console.log('Requesting send transaction...');
-  //   setDisplayText('Requesting send transaction...');
-  //   const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
+    setDisplayText('Creating proof...');
+    console.log('Creating proof...');
+    await state.zkappWorkerClient!.proveUpdateTransaction();
 
-  //   setDisplayText('Getting transaction JSON...');
-  //   console.log('Getting transaction JSON...');
-  //   const { hash } = await (window as any).mina.sendTransaction({
-  //     transaction: transactionJSON,
-  //     feePayer: {
-  //       fee: transactionFee,
-  //       memo: '',
-  //     },
-  //   });
+    console.log('Requesting send transaction...');
+    setDisplayText('Requesting send transaction...');
+    const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
 
-  //   const transactionLink = `https://minascan.io/devnet/tx/${hash}`;
-  //   console.log(`View transaction at ${transactionLink}`);
+    setDisplayText('Getting transaction JSON...');
+    console.log('Getting transaction JSON...');
+    const { hash } = await (window as any).mina.sendTransaction({
+      transaction: transactionJSON,
+      feePayer: {
+        fee: transactionFee,
+        memo: '',
+      },
+    });
 
-  //   setTransactionLink(transactionLink);
-  //   setDisplayText(transactionLink);
+    const transactionLink = `https://minascan.io/devnet/tx/${hash}`;
+    console.log(`View transaction at ${transactionLink}`);
 
-  //   setState({ ...state, creatingTransaction: false });
-  // };
+    setTransactionLink(transactionLink);
+    setDisplayText(transactionLink);
+
+    setState({ ...state, creatingTransaction: false });
+  };
 
   // -------------------------------------------------------
   // Refresh the current state
@@ -264,17 +269,23 @@ export default function Home() {
         </div>
         <button
           className={styles.card}
-          onClick={() => handleGuess(true)}
-          disabled={!!state.randomNumber}
+          onClick={() => onSendTransaction()}
         >
           Even
         </button>
         <button
           className={styles.card}
-          onClick={() => handleGuess(false)}
-          disabled={!!state.randomNumber}
+          onClick={() => onSendTransaction()}
         >
           Uneven
+        </button>
+
+        <button
+          className={styles.card}
+          onClick={() => handleGuess(true)}
+          disabled={!!state.randomNumber}
+        >
+          Did I won?
         </button>
 
         {/* {state.lastGuessCorrect !== null
