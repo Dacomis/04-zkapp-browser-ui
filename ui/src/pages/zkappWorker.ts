@@ -18,6 +18,7 @@ const functions = {
   setActiveInstanceToDevnet: async (args: {}) => {
     const Network = Mina.Network(
       'https://api.minascan.io/node/devnet/v1/graphql'
+      // 'http://127.0.0.1:8080/graphql'
     );
     console.log('Devnet network instance configured.');
     Mina.setActiveInstance(Network);
@@ -56,7 +57,7 @@ const functions = {
     return await state.zkapp!.determineRandomNumberEvenness();
   },
   fetchEvenness: async (args: {}) => {
-    return await state.zkapp!.isRandomNumberEven.get();
+    return await state.zkapp!.isRandomNumberEven.getAndRequireEquals().toBigInt();
   }
 };
 

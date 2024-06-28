@@ -52,6 +52,15 @@ const nextConfig = {
    */
   basePath: process.env.NODE_ENV === 'production' ? '/mina-zk-app-guessing-game-with-ui' : '', // update if your repo name changes for 'npm run deploy' to work correctly
   assetPrefix: process.env.NODE_ENV === 'production' ? '/mina-zk-app-guessing-game-with-ui/' : '', // update if your repo name changes for 'npm run deploy' to work correctly
+ 
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://external-api.example.com/:path*', // Your external API URL here
+      },
+    ];
+  },
 };
 
 export default nextConfig;

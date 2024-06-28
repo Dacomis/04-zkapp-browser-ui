@@ -6,7 +6,11 @@ import './reactCOIServiceWorker';
 import ZkappWorkerClient from './zkappWorkerClient';
 
 let transactionFee = 0.1;
-const ZKAPP_ADDRESS = 'B62qpXPvmKDf4SaFJynPsT6DyvuxMS9H1pT4TGonDT26m599m7dS9gP';
+// on remote node
+const ZKAPP_ADDRESS = 'B62qp9fnHEUwfreFpKCWhTREBdyvkeP15f3hsioQKHpC1SWd222yYaR'; 
+
+// on lightnet
+// const ZKAPP_ADDRESS = 'B62qptxxnPmYMQsen8XeT41gy8aEcVZkMHXwFZQqmhrjarjBpE4DUvM'; 
 
 export default function Home() {
   const [state, setState] = useState({
@@ -72,6 +76,7 @@ export default function Home() {
 
         await zkappWorkerClient.loadContract();
 
+
         console.log('Compiling zkApp...');
         setDisplayText('Compiling zkApp...');
         await zkappWorkerClient.compileContract();
@@ -85,6 +90,8 @@ export default function Home() {
         console.log('Getting zkApp state...');
         setDisplayText('Getting zkApp state...');
         await zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey });
+        console.log('🚀 ~ zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey });:', zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey }).then(result => result));
+        console.log('🚀 ~ zkappPublicKey:', zkappPublicKey);
         setDisplayText('');
 
         setState({
@@ -146,6 +153,7 @@ export default function Home() {
     console.log('Requesting send transaction...');
     setDisplayText('Requesting send transaction...');
     const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
+    console.log('🚀 ~ onSendTransaction ~ transactionJSON:', transactionJSON);
 
     setDisplayText('Getting transaction JSON...');
     console.log('Getting transaction JSON...');
@@ -187,13 +195,13 @@ export default function Home() {
       console.log('🚀 ~ fetchAndDisplayNumber ~ fetchEvenness:',
         fetchEvenness);
 
-      const isEven = JSON.parse(evennessResult as string);
-      console.log('🚀 ~ Number Evenness:', isEven);
+      // const isEven = JSON.parse(evennessResult as string);
+      // console.log('🚀 ~ Number Evenness:', isEven);
 
       // Logic to update the state based on the evenness result
-      setState({ ...state, randomNumber: Field(randomNumber) });
-      const result = guessIsEven === isEven ? 'Correct!' : 'Wrong!';
-      setDisplayText(`The number was ${randomNumber}. You are ${result}`);
+      setState({ ...state, randomNumber: generatedRandomNumber as Field });
+      // const result = guessIsEven === isEven ? 'Correct!' : 'Wrong!';
+      // setDisplayText(`The number was ${randomNumber}. You are ${result}`);
 
     } catch (error) {
       console.error("Error during transaction:", error);
@@ -265,17 +273,30 @@ export default function Home() {
         <button
           className={styles.card}
           onClick={() => onSendTransaction()}
-          disabled={!!state.randomNumber}
         >
           Even
         </button>
         <button
           className={styles.card}
           onClick={() => onSendTransaction()}
-          disabled={!!state.randomNumber}
         >
           Uneven
         </button>
+
+        <button
+          className={styles.card}
+          onClick={() => handleGuess(true)}
+          disabled={!!state.randomNumber}
+        >
+          Did I won?
+        </button>
+
+        {/* {state.lastGuessCorrect !== null
+          ? (state.lastGuessCorrect
+            ? <div className={styles.card}>You have won</div>
+            : <div className={styles.card}>You have lost</div>)
+          : ""
+        } */}
       </div>
     );
   }
