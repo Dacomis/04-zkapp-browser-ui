@@ -50,6 +50,10 @@ export default class ZkappWorkerClient {
     return this._call('fetchEvenness', {});
   }
 
+  createUpdateTransaction() {
+    return this._call('createUpdateTransaction', {});
+  }
+
   proveUpdateTransaction() {
     return this._call('proveUpdateTransaction', {});
   }

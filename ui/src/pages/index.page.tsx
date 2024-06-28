@@ -106,8 +106,7 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       if (state.hasBeenSetup && !state.accountExists) {
-
-        for (; ;) {
+        for (;;) {
           setDisplayText('Checking if fee payer account exists...');
           console.log('Checking if fee payer account exists...');
           const res = await state.zkappWorkerClient!.fetchAccount({
@@ -124,7 +123,6 @@ export default function Home() {
     })();
   }, [state.hasBeenSetup]);
 
-
   // -------------------------------------------------------
   // Send a transaction
 
@@ -137,6 +135,9 @@ export default function Home() {
     await state.zkappWorkerClient!.fetchAccount({
       publicKey: state.publicKey!,
     });
+
+    await state.zkappWorkerClient!.compileContract(); // new line added to compile the contract
+    await state.zkappWorkerClient!.createUpdateTransaction();
 
     setDisplayText('Creating proof...');
     console.log('Creating proof...');
@@ -233,7 +234,6 @@ export default function Home() {
       className={styles.start}
       style={{ fontWeight: 'bold', fontSize: '1.5rem', paddingBottom: '5rem' }}
     >
-      {stepDisplay}
       {hasWallet}
     </div>
   );
@@ -264,25 +264,18 @@ export default function Home() {
         </div>
         <button
           className={styles.card}
-          onClick={() => handleGuess(true)}
+          onClick={() => onSendTransaction()}
           disabled={!!state.randomNumber}
         >
           Even
         </button>
         <button
           className={styles.card}
-          onClick={() => handleGuess(false)}
+          onClick={() => onSendTransaction()}
           disabled={!!state.randomNumber}
         >
           Uneven
         </button>
-
-        {/* {state.lastGuessCorrect !== null
-          ? (state.lastGuessCorrect
-            ? <div className={styles.card}>You have won</div>
-            : <div className={styles.card}>You have lost</div>)
-          : ""
-        } */}
       </div>
     );
   }

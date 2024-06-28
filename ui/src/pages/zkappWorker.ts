@@ -10,7 +10,6 @@ const state = {
   IsNumberEven: null as null | typeof IsNumberEven,
   zkapp: null as null | IsNumberEven,
   transaction: null as null | Transaction,
-  randomNumberState: null as null | Field,
 };
 
 // ---------------------------------------------------------------------------------------
@@ -37,6 +36,12 @@ const functions = {
   initZkappInstance: async (args: { publicKey58: string }) => {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
     state.zkapp = new state.IsNumberEven!(publicKey);
+  },
+  createUpdateTransaction: async (args: {}) => {
+    const transaction = await Mina.transaction(async () => {
+      await state.zkapp!.determineRandomNumberEvenness();
+    });
+    state.transaction = transaction;
   },
   proveUpdateTransaction: async (args: {}) => {
     await state.transaction!.prove();
@@ -74,7 +79,9 @@ if (typeof window !== 'undefined') {
   addEventListener(
     'message',
     async (event: MessageEvent<ZkappWorkerRequest>) => {
+      console.log('🚀 ~ event:', event.data);
       const returnData = await functions[event.data.fn](event.data.args);
+      
 
       const message: ZkappWorkerReponse = {
         id: event.data.id,
